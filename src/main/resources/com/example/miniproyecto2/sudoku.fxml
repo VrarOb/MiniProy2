@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+
+<!--
+  Vista del juego Sudoku 6x6.
+  Se utiliza un BorderPane donde en la parte superior se colocan los botones de "Nuevo Juego" y "Ayuda",
+  y en el centro se despliega el GridPane que contendrá la cuadrícula del juego.
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.miniproyecto2.SudokuController">
+    <top>
+        <HBox spacing="10" alignment="center" style="-fx-padding: 10;">
+            <Button fx:id="newGameButton" text="Nuevo Juego"/>
+            <Button fx:id="helpButton" text="Ayuda"/>
+        </HBox>
+    </top>
+    <center>
+        <GridPane fx:id="gridPane" hgap="5" vgap="5" style="-fx-padding: 10;"/>
+    </center>
+</BorderPane>
