@@ -1,17 +1,16 @@
 package com.example.miniproyecto2;
 
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 
 /**
- * Controlador que gestiona la interacción entre la vista y el modelo.
- * Se encarga de inicializar la cuadrícula, manejar eventos de teclado y mouse,
- * iniciar nuevos juegos, validar movimientos y proporcionar sugerencias de ayuda.
+ * Controlador que enlaza la vista con el modelo.
+ * Inicializa la cuadrícula, procesa la entrada del usuario y actualiza la vista.
  */
 public class SudokuController {
 
@@ -24,25 +23,35 @@ public class SudokuController {
 
     private SudokuModel model;
     private TextField[][] cells;
+    // La solución completa (oculta) para validar la entrada del usuario
+    private int[][] solution;
 
     /**
-     * Método de inicialización llamado automáticamente al cargar el FXML.
-     * Construye la cuadrícula de celdas y asocia los eventos.
+     * Inicializa la vista: crea la cuadrícula, restringe la entrada y asigna eventos.
      */
     public void initialize() {
+        // Se crea el modelo inicialmente para tener acceso a constantes y tamaño
         model = new SudokuModel();
         cells = new TextField[SudokuModel.SIZE][SudokuModel.SIZE];
 
-        // Construir la cuadrícula 6x6.
         for (int row = 0; row < SudokuModel.SIZE; row++) {
             for (int col = 0; col < SudokuModel.SIZE; col++) {
                 TextField cell = new TextField();
                 cell.setPrefWidth(50);
                 cell.setPrefHeight(50);
                 cell.setStyle("-fx-font-size: 18; -fx-alignment: center;");
+
+                // Permitir solo un dígito (1-6)
+                TextFormatter<String> formatter = new TextFormatter<>(change -> {
+                    if (change.getControlNewText().matches("[1-6]?")) {
+                        return change;
+                    }
+                    return null;
+                });
+                cell.setTextFormatter(formatter);
+
                 final int r = row;
                 final int c = col;
-                // Manejar la entrada de teclado en cada celda.
                 cell.setOnKeyReleased((KeyEvent event) -> {
                     String text = cell.getText();
                     if (text.isEmpty()) {
@@ -51,18 +60,15 @@ public class SudokuController {
                     } else {
                         try {
                             int num = Integer.parseInt(text);
-                            if (num < 1 || num > 6) {
-                                showError("Solo se permiten números del 1 al 6");
-                                cell.setText("");
+                            // Validar comparando con la solución generada
+                            if (solution[r][c] != num) {
+                                showError("Número incorrecto para la celda (" + (r+1) + "," + (c+1) + ").");
+                                cell.setStyle("-fx-border-color: red; -fx-font-size: 18; -fx-alignment: center;");
                             } else {
-                                if (model.isValidMove(r, c, num)) {
-                                    model.setCell(r, c, num);
-                                    // Restablecer estilo en caso de corrección.
-                                    cell.setStyle("-fx-font-size: 18; -fx-alignment: center;");
-                                } else {
-                                    showError("Movimiento inválido: el número se repite en la fila, columna o bloque.");
-                                    cell.setStyle("-fx-border-color: red; -fx-font-size: 18; -fx-alignment: center;");
-                                }
+                                model.setCell(r, c, num);
+                                cell.setEditable(false);
+                                cell.setStyle("-fx-font-size: 18; -fx-alignment: center;");
+                                checkPuzzleComplete();
                             }
                         } catch (NumberFormatException e) {
                             showError("Entrada no válida. Ingrese un número del 1 al 6.");
@@ -74,14 +80,14 @@ public class SudokuController {
                 gridPane.add(cell, col, row);
             }
         }
-        // Asociar los eventos de los botones.
+
         newGameButton.setOnAction(e -> startNewGame());
         helpButton.setOnAction(e -> provideHelp());
     }
 
     /**
-     * Inicia un nuevo juego solicitando confirmación al usuario.
-     * Si se confirma, reinicia el tablero y coloca dos números en cada bloque 2x3.
+     * Inicia un nuevo juego: crea un nuevo modelo para generar un tablero nuevo,
+     * actualiza la solución y refresca la vista.
      */
     private void startNewGame() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -89,105 +95,66 @@ public class SudokuController {
         alert.setHeaderText("Iniciar un nuevo juego de Sudoku");
         alert.setContentText("¿Estás seguro?");
         alert.showAndWait().ifPresent(response -> {
-            // Reinicializar el modelo y la interfaz.
+            // Re-inicializar el modelo genera una nueva solución y puzzle
             model = new SudokuModel();
-            for (int row = 0; row < SudokuModel.SIZE; row++) {
-                for (int col = 0; col < SudokuModel.SIZE; col++) {
-                    cells[row][col].setText("");
-                    cells[row][col].setEditable(true);
-                    cells[row][col].setStyle("-fx-font-size: 18; -fx-alignment: center;");
-                }
-            }
-            initializeBoard();
+            model.generatePuzzle();
+            solution = model.getSolution();
+            updateViewFromModel();
         });
     }
 
     /**
-     * Inicializa el tablero colocando dos números válidos en cada bloque 2x3.
-     * Se utiliza un enfoque con intentos limitados para cada bloque y, de no lograrlo,
-     * se reinicia la generación del tablero completo.
+     * Actualiza la vista según el estado actual del puzzle.
      */
-    private void initializeBoard() {
-        boolean success = false;
-        int overallAttempts = 0;
-        // Limitar el número de reintentos globales para evitar bucles infinitos.
-        while (!success && overallAttempts < 1000) {
-            overallAttempts++;
-            // Reinicializar el modelo y limpiar la interfaz.
-            model = new SudokuModel();
-            resetCells();
-            success = true;
-
-            // Iterar sobre cada bloque de 2x3.
-            for (int blockRow = 0; blockRow < SudokuModel.SIZE; blockRow += 2) {
-                for (int blockCol = 0; blockCol < SudokuModel.SIZE; blockCol += 3) {
-                    int count = 0;
-                    int blockAttempts = 0;
-                    // Intentar colocar 2 números en el bloque actual
-                    while (count < 2 && blockAttempts < 100) {
-                        blockAttempts++;
-                        int r = blockRow + (int)(Math.random() * 2);
-                        int c = blockCol + (int)(Math.random() * 3);
-                        if (model.getCell(r, c) == SudokuModel.EMPTY) {
-                            int num = 1 + (int)(Math.random() * 6);
-                            if (model.isValidMove(r, c, num)) {
-                                model.setCell(r, c, num);
-                                cells[r][c].setText(String.valueOf(num));
-                                cells[r][c].setEditable(false);
-                                count++;
-                            }
-                        }
-                    }
-                    // Si después de 100 intentos no se pudo colocar 2 números en el bloque,
-                    // se marca la generación como fallida y se reinicia todo el tablero.
-                    if (count < 2) {
-                        success = false;
-                        break;
-                    }
-                }
-                if (!success) break;
-            }
-            // Si se logró completar la generación, se sale del ciclo.
-            if (success) break;
-        }
-        if (!success) {
-            showError("No se pudo inicializar el tablero. Intente reiniciar el juego.");
-        }
-    }
-
-    /**
-     * Reinicia visualmente las celdas para la generación de un nuevo tablero.
-     */
-    private void resetCells() {
+    private void updateViewFromModel() {
         for (int row = 0; row < SudokuModel.SIZE; row++) {
             for (int col = 0; col < SudokuModel.SIZE; col++) {
-                cells[row][col].setText("");
-                cells[row][col].setEditable(true);
+                int val = model.getCell(row, col);
+                if (val != SudokuModel.EMPTY) {
+                    cells[row][col].setText(String.valueOf(val));
+                    cells[row][col].setEditable(false);
+                } else {
+                    cells[row][col].setText("");
+                    cells[row][col].setEditable(true);
+                }
                 cells[row][col].setStyle("-fx-font-size: 18; -fx-alignment: center;");
             }
         }
     }
 
     /**
-     * Proporciona una sugerencia de ayuda para una celda vacía.
-     * Busca la primera celda vacía y sugiere el primer número válido.
+     * Verifica si el puzzle está completamente resuelto.
+     * Si es así, muestra un mensaje "¡Has ganado!".
+     */
+    private void checkPuzzleComplete() {
+        for (int row = 0; row < SudokuModel.SIZE; row++) {
+            for (int col = 0; col < SudokuModel.SIZE; col++) {
+                if (model.getCell(row, col) == SudokuModel.EMPTY) {
+                    return; // Al menos una celda está vacía
+                }
+            }
+        }
+        Alert winAlert = new Alert(Alert.AlertType.INFORMATION);
+        winAlert.setTitle("¡Ganaste!");
+        winAlert.setHeaderText(null);
+        winAlert.setContentText("¡Has completado el Sudoku correctamente!");
+        winAlert.show();
+    }
+
+    /**
+     * Proporciona ayuda mostrando el número correcto para la primera celda vacía.
      */
     private void provideHelp() {
         for (int row = 0; row < SudokuModel.SIZE; row++) {
             for (int col = 0; col < SudokuModel.SIZE; col++) {
                 if (model.getCell(row, col) == SudokuModel.EMPTY) {
-                    for (int num = 1; num <= 6; num++) {
-                        if (model.isValidMove(row, col, num)) {
-                            // Resaltar la celda sugerida.
-                            cells[row][col].setStyle("-fx-border-color: blue; -fx-font-size: 18; -fx-alignment: center;");
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Ayuda");
-                            alert.setHeaderText("Sugerencia para la celda (" + (row + 1) + "," + (col + 1) + ")");
-                            alert.setContentText("Un posible número es: " + num);
-                            alert.show();
-                            return;
-                        }
-                    }
+                    int correctNumber = solution[row][col];
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Ayuda");
+                    alert.setHeaderText("Sugerencia para la celda (" + (row+1) + "," + (col+1) + ")");
+                    alert.setContentText("El número correcto es: " + correctNumber);
+                    alert.show();
+                    return;
                 }
             }
         }
@@ -199,9 +166,9 @@ public class SudokuController {
     }
 
     /**
-     * Muestra una alerta de error con el mensaje especificado.
+     * Muestra un mensaje de error.
      *
-     * @param message el mensaje de error a mostrar
+     * @param message el mensaje a mostrar.
      */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -211,3 +178,8 @@ public class SudokuController {
         alert.show();
     }
 }
+
+
+
+
+
