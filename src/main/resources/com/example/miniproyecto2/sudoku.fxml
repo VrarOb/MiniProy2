@@ -8,14 +8,13 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.miniproyecto2.SudokuController"
             stylesheets="@sudoku.css">
-
     <top>
         <HBox spacing="15" alignment="center" style="-fx-padding: 15; -fx-background-color: #2c3e50;">
             <Button fx:id="newGameButton" text="Nuevo Juego"/>
             <Button fx:id="helpButton" text="Ayuda" style="-fx-background-color: #27ae60;"/>
+            <Button fx:id="instructionsButton" text="Instrucciones"/>
         </HBox>
     </top>
-
     <center>
         <GridPane fx:id="gridPane" hgap="2" vgap="2"
                   style="-fx-padding: 15; -fx-background-color: transparent;"/>

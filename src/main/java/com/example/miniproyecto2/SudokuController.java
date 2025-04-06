@@ -10,6 +10,8 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class SudokuController {
     @FXML private GridPane gridPane;
     @FXML private Button newGameButton;
     @FXML private Button helpButton;
+    @FXML private Button instructionsButton;
 
     private SudokuModel model;
     private TextField[][] cells;
@@ -44,6 +47,7 @@ public class SudokuController {
 
         newGameButton.setOnAction(e -> startNewGame());
         helpButton.setOnAction(e -> provideHelp());
+        instructionsButton.setOnAction(e -> instructions());
     }
 
     private TextField createCell(int row, int col) {
@@ -220,6 +224,7 @@ public class SudokuController {
         showAlert(Alert.AlertType.INFORMATION, "Ayuda", "No hay celdas vacías para sugerir ayuda.");
     }
 
+
     private void showError(String message) {
         showAlert(Alert.AlertType.ERROR, "Error", message);
     }
@@ -230,6 +235,21 @@ public class SudokuController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.show();
+    }
+
+    private void instructions() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Instrucciones");
+        alert.setHeaderText("Cómo jugar al Sudoku");
+        alert.setContentText(
+                "Reglas del juego:\n" +
+                        "1. Cada fila debe contener números del 1 al 6 sin repetirse.\n" +
+                        "2. Cada columna debe contener números del 1 al 6 sin repetirse.\n" +
+                        "3. Cada bloque 2x3 debe contener números del 1 al 6 sin repetirse.\n\n" +
+                        "Utiliza la lógica para deducir el número correcto en cada celda.\n" +
+                        "¡Buena suerte!"
+        );
+        alert.showAndWait();
     }
 }
 

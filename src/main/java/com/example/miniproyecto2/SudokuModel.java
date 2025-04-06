@@ -169,9 +169,3 @@ public class SudokuModel {
         }
     }
 }
-
-
-
-
-
-
