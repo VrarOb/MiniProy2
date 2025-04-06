@@ -5,17 +5,21 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.miniproyecto2.SudokuController">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.miniproyecto2.SudokuController"
+            stylesheets="@sudoku.css">
+
     <top>
-        <HBox spacing="10" alignment="center" style="-fx-padding: 10;">
+        <HBox spacing="15" alignment="center" style="-fx-padding: 15; -fx-background-color: #2c3e50;">
             <Button fx:id="newGameButton" text="Nuevo Juego"/>
-            <Button fx:id="helpButton" text="Ayuda"/>
+            <Button fx:id="helpButton" text="Ayuda" style="-fx-background-color: #27ae60;"/>
         </HBox>
     </top>
+
     <center>
-        <GridPane fx:id="gridPane" hgap="5" vgap="5" style="-fx-padding: 10;"/>
+        <GridPane fx:id="gridPane" hgap="2" vgap="2"
+                  style="-fx-padding: 15; -fx-background-color: transparent;"/>
     </center>
 </BorderPane>
-
 
 

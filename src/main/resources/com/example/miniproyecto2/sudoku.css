@@ -1,0 +1,95 @@
+/* sudoku.css */
+.root {
+    -fx-background-color: #f5f7fa;
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Estilo base para celdas */
+.cell {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 3px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 2, 0, 0, 1);
+    -fx-text-fill: #2c3e50;
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+}
+
+/* Bordes para bloques 2x3 */
+.block-right {
+    -fx-border-width: 1px 3px 1px 1px;
+    -fx-border-color: #d1d5db #3b82f6 #d1d5db #d1d5db;
+}
+
+.block-bottom {
+    -fx-border-width: 1px 1px 3px 1px;
+    -fx-border-color: #d1d5db #d1d5db #3b82f6 #d1d5db;
+}
+
+.block-corner {
+    -fx-border-width: 1px 3px 3px 1px;
+    -fx-border-color: #d1d5db #3b82f6 #3b82f6 #d1d5db;
+}
+
+/* Estados de celdas */
+.cell-correct:disabled {
+    -fx-border-color: #3b82f6 !important;
+    -fx-border-width: 2px !important;
+    -fx-background-color: #ebf5ff !important;
+}
+
+.cell-error {
+    -fx-border-color: #ef4444 !important;
+    -fx-border-width: 2px !important;
+    -fx-background-color: #fee2e2 !important;
+}
+
+/* Efecto de pulso para secciones completas */
+.pulse-animation {
+    -fx-background-color: #e5e7eb !important;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.1), 5, 0.5, 0, 0);
+}
+
+/* Grid principal */
+.grid-pane {
+    -fx-background-color: #3b82f6;
+    -fx-padding: 5px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Botones */
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 5px;
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #2563eb;
+}
+
+#helpButton {
+    -fx-background-color: #10b981;
+}
+
+#helpButton:hover {
+    -fx-background-color: #059669;
+}
+
+/* Celdas pre-llenadas */
+.cell:disabled {
+    -fx-opacity: 1;
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #1e40af;
+}
