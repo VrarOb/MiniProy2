@@ -3,15 +3,11 @@ package com.example.miniproyecto2;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-
-import java.awt.event.ActionEvent;
+import javafx.scene.control.Label;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +17,7 @@ public class SudokuController {
     @FXML private Button newGameButton;
     @FXML private Button helpButton;
     @FXML private Button instructionsButton;
+    @FXML private Label fivesLabel;
 
     private SudokuModel model;
     private TextField[][] cells;
@@ -32,6 +29,7 @@ public class SudokuController {
         model = new SudokuModel();
         cells = new TextField[SudokuModel.SIZE][SudokuModel.SIZE];
         model.generatePuzzle();
+        model.countFives();
         solution = model.getSolution();
 
         for (int row = 0; row < SudokuModel.SIZE; row++) {
@@ -94,12 +92,21 @@ public class SudokuController {
                     cell.getStyleClass().remove("cell-error");
                     cell.getStyleClass().add("cell-correct");
 
+                    model.setCell(row,col, num);{
+                        if (num == 5) model.fives ++;
+                        int numbers = (model.countFives() - model.fives) ;
+                        fivesLabel.setText("Cincos iniciales: " + numbers
+                                + " | Cincos ingresados: " + model.fives);
+                    }
+
                     // Cambiar esta línea ↓
                     if (isRowComplete(row) || isColComplete(col) || isBlockComplete(row, col)) {
                         applyPulseEffect(row, col); // <-- Usar coordenadas en lugar de la celda
                     }
                     checkPuzzleComplete();
                 }
+
+
             } catch (NumberFormatException e) {
                 showError("Entrada no válida. Ingrese un número del 1 al 6.");
                 cell.setText("");
@@ -175,12 +182,14 @@ public class SudokuController {
         alert.showAndWait().ifPresent(response -> {
             model = new SudokuModel();
             model.generatePuzzle();
+            model.countFives();
             solution = model.getSolution();
             updateViewFromModel();
         });
     }
 
     private void updateViewFromModel() {
+
         for (int row = 0; row < SudokuModel.SIZE; row++) {
             for (int col = 0; col < SudokuModel.SIZE; col++) {
                 TextField cell = cells[row][col];

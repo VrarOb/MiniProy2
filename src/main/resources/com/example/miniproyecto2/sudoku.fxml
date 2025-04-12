@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.miniproyecto2.SudokuController"
@@ -19,6 +20,9 @@
         <GridPane fx:id="gridPane" hgap="2" vgap="2"
                   style="-fx-padding: 15; -fx-background-color: transparent;"/>
     </center>
+    <bottom>
+        <Label fx:id="fivesLabel" text=" "/>
+    </bottom>
 </BorderPane>
 
 

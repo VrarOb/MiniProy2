@@ -1,9 +1,13 @@
 package com.example.miniproyecto2;
 
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
 
 /**
  * Modelo del juego Sudoku 6x6.
@@ -14,6 +18,7 @@ public class SudokuModel {
 
     public static final int SIZE = 6;
     public static final int EMPTY = 0;
+    public int fives = 0;
 
     // Tablero visible (puzzle) y solución completa (oculta)
     private int[][] board;
@@ -154,18 +159,41 @@ public class SudokuModel {
         for (int blockRow = 0; blockRow < SIZE; blockRow += 2) {
             for (int blockCol = 0; blockCol < SIZE; blockCol += 3) {
                 List<int[]> positions = new ArrayList<>();
+
                 for (int r = blockRow; r < blockRow + 2; r++) {
                     for (int c = blockCol; c < blockCol + 3; c++) {
                         positions.add(new int[]{r, c});
                     }
                 }
+
                 Collections.shuffle(positions);
-                // Conservar las dos primeras posiciones; vaciar el resto
-                for (int i = 2; i < positions.size(); i++) {
-                    int[] pos = positions.get(i);
-                    board[pos[0]][pos[1]] = EMPTY;
+
+                int keptCount = 0;
+                for (int[] pos : positions) {
+                    int cellValue = board[pos[0]][pos[1]];
+                    if (cellValue == 2) {
+                        continue;
+                    }
+                    if (keptCount < 2) {
+                        keptCount++;
+                    } else {
+                        board[pos[0]][pos[1]] = EMPTY;
+                    }
                 }
             }
         }
     }
+
+    public int countFives() {
+        int count = 0;
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                if (board[row][col] == 5) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
 }
