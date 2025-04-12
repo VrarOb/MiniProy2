@@ -7,11 +7,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
-import java.awt.event.ActionEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class SudokuController {
     @FXML private Button newGameButton;
     @FXML private Button helpButton;
     @FXML private Button instructionsButton;
+    @FXML private Label fivesLabel;
 
     private SudokuModel model;
     private TextField[][] cells;
@@ -90,7 +92,9 @@ public class SudokuController {
                     cell.getStyleClass().add("cell-error");
                 } else {
                     model.setCell(row, col, num);
+                    if (num == 5) model.countFives++;
                     cell.setEditable(false);
+                    fivesLabel.setText("Cantidad de cincos visibles: " + model.countFives);
                     cell.getStyleClass().remove("cell-error");
                     cell.getStyleClass().add("cell-correct");
 
@@ -178,6 +182,11 @@ public class SudokuController {
             solution = model.getSolution();
             updateViewFromModel();
         });
+        System.out.println("Cantidad de cincos colocados: " + model.countFives);
+
+
+
+
     }
 
     private void updateViewFromModel() {
@@ -200,6 +209,7 @@ public class SudokuController {
                 }
             }
         }
+        fivesLabel.setText("Cantidad de cincos: " + model.countFives);
     }
 
     private void checkPuzzleComplete() {

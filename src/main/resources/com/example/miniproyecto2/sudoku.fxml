@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -8,6 +9,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.miniproyecto2.SudokuController"
             stylesheets="@sudoku.css">
+
     <top>
         <HBox spacing="15" alignment="center" style="-fx-padding: 15; -fx-background-color: #2c3e50;">
             <Button fx:id="newGameButton" text="Nuevo Juego"/>
@@ -15,10 +17,19 @@
             <Button fx:id="instructionsButton" text="Instrucciones"/>
         </HBox>
     </top>
+
     <center>
         <GridPane fx:id="gridPane" hgap="2" vgap="2"
                   style="-fx-padding: 15; -fx-background-color: transparent;"/>
     </center>
+
+    <bottom>
+        <HBox alignment="center" style="-fx-padding: 10;">
+            <Label fx:id="fivesLabel" text="Cantidad de cincos visibles: 0" />
+        </HBox>
+    </bottom>
+
 </BorderPane>
+
 
 

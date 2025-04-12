@@ -14,6 +14,8 @@ public class SudokuModel {
 
     public static final int SIZE = 6;
     public static final int EMPTY = 0;
+    public int countFives = 0;
+    public List <int[]> twosPositions = new ArrayList<>();
 
     // Tablero visible (puzzle) y solución completa (oculta)
     private int[][] board;
@@ -118,6 +120,7 @@ public class SudokuModel {
                     return true;
                 }
                 board[row][col] = EMPTY;
+
             }
         }
         return false;
@@ -144,26 +147,50 @@ public class SudokuModel {
      *    excepto dos pistas.
      */
     public void generatePuzzle() {
-        // Generar solución completa
+
         if (!solveBoard(solution, 0, 0)) {
             throw new RuntimeException("No se pudo generar una solución completa.");
         }
-        // Copiar solución a puzzle
         board = copyBoard(solution);
-        // En cada bloque 2x3, conservar solo 2 números y borrar el resto
+
+
         for (int blockRow = 0; blockRow < SIZE; blockRow += 2) {
             for (int blockCol = 0; blockCol < SIZE; blockCol += 3) {
                 List<int[]> positions = new ArrayList<>();
+
                 for (int r = blockRow; r < blockRow + 2; r++) {
                     for (int c = blockCol; c < blockCol + 3; c++) {
                         positions.add(new int[]{r, c});
                     }
                 }
+
+
                 Collections.shuffle(positions);
-                // Conservar las dos primeras posiciones; vaciar el resto
-                for (int i = 2; i < positions.size(); i++) {
+
+                int kept = 0;
+                for (int i = 0; i < positions.size(); i++) {
                     int[] pos = positions.get(i);
+                    int val = board[pos[0]][pos[1]];
+
+                    if (val == 2) {
+                        continue;
+                    }
+
+                    if (kept < 2) {
+                        kept++;
+                        continue;
+                    }
                     board[pos[0]][pos[1]] = EMPTY;
+                }
+            }
+        }
+
+
+        countFives= 0;
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (board[r][c] == 5) {
+                    countFives++;
                 }
             }
         }
